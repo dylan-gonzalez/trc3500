@@ -1,4 +1,4 @@
-g++ -o opencv_cam Skeleton.cpp -std=c++17^
+g++ -o out/opencv_cam Skeleton.cpp -std=c++17^
     -I "C:\msys64\mingw64\include\opencv4"^
     -L "C:\msys64\mingw64\bin"^
     -lopencv_core-409 -lopencv_highgui-409 -lopencv_imgcodecs-409^
