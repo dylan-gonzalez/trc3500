@@ -25,12 +25,12 @@ int main() {
 
     // cv::Mat frame;
     // cap >> frame;
-    // cv::Mat frame = imread("./assets/DEMO_circle_fish_star_01.jpg",cv::IMREAD_COLOR);
-    // cv::Mat frame_down;
-    // cv::resize(frame,frame_down,cv::Size(),0.5,0.5);
-    cv::Mat frame = imread("assets/DEMO_components_02.png",cv::IMREAD_COLOR);
+    cv::Mat frame = imread("./assets/DEMO_circle_fish_star_01.jpg",cv::IMREAD_COLOR);
     cv::Mat frame_down;
-    cv::resize(frame,frame_down,cv::Size(),0.2,0.2);
+    cv::resize(frame,frame_down,cv::Size(),0.5,0.5);
+    // cv::Mat frame = imread("assets/DEMO_components_02.png",cv::IMREAD_COLOR);
+    // cv::Mat frame_down;
+    // cv::resize(frame,frame_down,cv::Size(),0.2,0.2);
 
     if (frame.empty()) {
         std::cerr << "No frame captured?" << std::endl;
@@ -42,7 +42,8 @@ int main() {
 
     cv::Mat bw;
 
-    cv::threshold(gray,bw,180,255,cv::THRESH_BINARY_INV);
+    //cv::threshold(gray,bw,180,255,cv::THRESH_BINARY_INV);
+    cv::threshold(gray,bw,127,255,cv::THRESH_BINARY_INV);
     cv::Mat blured;
     cv::GaussianBlur(bw,blured,cv::Size(5,5),0);
 
@@ -56,6 +57,7 @@ int main() {
     cv::findContours(blured,contours,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_NONE);
 
     cv::drawContours(output,contours,-1,cv::Scalar(255,0,0));
+    cv::drawContours(frame_down,contours,-1,cv::Scalar(255,0,0));
 
 
     for (auto contour : contours) {
@@ -85,35 +87,22 @@ int main() {
         cv::line(output, cv::Point(cx + 25, cy), cv::Point(cx - 25, cy), (255,255,255), 2);
         cv::line(output, cv::Point(cx, cy+25), cv::Point(cx, cy-25), (255,255,255), 2);
 
+        double min = std::numeric_limits<double>::max();
+        int best_match = -1;
     }
+
+    
     
     std::cout << ""<< blob<<"\n";
     
-    cv::imshow("original", blured);
+    cv::imshow("original", frame_down);
     cv::imshow("contours", output);
 
-    // int width = bw.size().width;
-    // int height = bw.size().height;
-
-    // std::cout << ""<< width << " x "<<height<<"\n";
-
-    // int count;
-
-    // for (int i = 0; i < width; ++i){
-    //     for (int j = 0; j <height; ++j){
-    //         cv::Vec3b pixel = bw.at<cv::Vec3b>(i,j);
-    //         if (pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0){
-    //             ++count;
-    //         }
-    //     }
-    // }
-
-    
-    // std::cout << ""<< count <<"";
+   
     cv::waitKey(0);
     
     cap.release();
     cv::destroyAllWindows();
     
     return 0;
-} // main()
+}
