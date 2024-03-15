@@ -42,16 +42,18 @@ int main() {
 
     cv::Mat bw;
 
-    cv::threshold(gray,bw,190,255,cv::THRESH_BINARY_INV);
+    cv::threshold(gray,bw,180,255,cv::THRESH_BINARY_INV);
+    cv::Mat blured;
+    cv::GaussianBlur(bw,blured,cv::Size(5,5),0);
 
     cv::Mat temp;
-    int numLables = cv::connectedComponents(bw,temp);
-    cv::Mat output = cv::Mat::zeros(bw.size(),CV_8UC3);
+    int numLables = cv::connectedComponents(blured,temp);
+    cv::Mat output = cv::Mat::zeros(blured.size(),CV_8UC3);
     int blob = 0;
 
     std::vector<std::vector<cv::Point>> contours;
 
-    cv::findContours(bw,contours,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_NONE);
+    cv::findContours(blured,contours,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_NONE);
 
     cv::drawContours(output,contours,-1,cv::Scalar(255,0,0));
 
@@ -87,7 +89,7 @@ int main() {
     
     std::cout << ""<< blob<<"\n";
     
-    cv::imshow("original", bw);
+    cv::imshow("original", blured);
     cv::imshow("contours", output);
 
     // int width = bw.size().width;
