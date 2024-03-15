@@ -3,6 +3,7 @@
 #include <iostream>
 
 
+
 /*
 
 Sample program for capturing and displaying a frame, and printing the pixel
@@ -22,10 +23,10 @@ int main() {
 
     // cv::Mat frame;
     // cap >> frame;
-    // cv::Mat frame = imread("../DEMO_circle_fish_star_01.jpg",cv::IMREAD_COLOR);
+    // cv::Mat frame = imread("assets/DEMO_circle_fish_star_01.jpg",cv::IMREAD_COLOR);
     // cv::Mat frame_down;
     // cv::resize(frame,frame_down,cv::Size(),0.5,0.5);
-    cv::Mat frame = imread("../DEMO_components_02.png",cv::IMREAD_COLOR);
+    cv::Mat frame = imread("assets/DEMO_components_02.png",cv::IMREAD_COLOR);
     cv::Mat frame_down;
     cv::resize(frame,frame_down,cv::Size(),0.2,0.2);
 
@@ -56,7 +57,26 @@ int main() {
     cv::imshow("original", bw);
     cv::imshow("contours", output);
 
+    int width = bw.size().width;
+    int height = bw.size().height;
 
+    std::cout << ""<< width << " x "<<height<<"\n";
+
+    int count;
+
+    for (int i = 0; i < width; ++i){
+        for (int j = 0; j <height; ++j){
+            cv::Vec3b pixel = bw.at<cv::Vec3b>(i,j);
+            if (pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0){
+                ++count;
+                if (count < 20){
+                    std::cout << "("<< i<<" , " << j << ")";
+                }
+            }
+        }
+    }
+
+    std::cout << ""<< count <<"";
     /*
     cv::Vec3b pixel = frame.at<cv::Vec3b>(y, x);
     std::cout << "Pixel values at (" << x << ", " << y << "): ";
