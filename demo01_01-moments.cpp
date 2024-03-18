@@ -44,6 +44,7 @@ int main() {
 
     //cv::threshold(gray,bw,180,255,cv::THRESH_BINARY_INV);
     cv::threshold(gray,bw,127,255,cv::THRESH_BINARY_INV);
+    //cv::threshold(gray,bw,180,255,cv::THRESH_BINARY_INV);
     cv::Mat blured;
     cv::GaussianBlur(bw,blured,cv::Size(5,5),0);
 
@@ -95,7 +96,7 @@ int main() {
     
     std::cout << ""<< blob<<"\n";
     
-    cv::imshow("original", frame_down);
+    cv::imshow("original", blured);
     cv::imshow("contours", output);
 
    
