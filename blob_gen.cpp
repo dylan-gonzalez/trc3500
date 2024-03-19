@@ -12,7 +12,7 @@ int main(){
     //places random shapes for the blobs to form
     cv::RNG random(std::time(NULL));
 
-    int blobs = 6;
+    int blobs = random.uniform(3,7);
 
     int i = 0;
     while (i < blobs){
@@ -30,7 +30,7 @@ int main(){
             i++;
         }
         else if(choice == 1){
-            cv::line(img,pt1,pt2,cv::Scalar(255,255,255),random.uniform(4,10));
+            cv::line(img,pt1,pt2,cv::Scalar(255,255,255),random.uniform(20,41));
             i++;
         }
         else if(choice == 2){
