@@ -24,27 +24,28 @@ int main(){
 
     //Turns the image into a binary black and white photo
     cv::Mat bw;
-    cv::threshold(gray,bw,45,255,cv::THRESH_BINARY_INV);
+    cv::threshold(gray, bw, 45, 255, cv::THRESH_BINARY_INV);
+    cv:: Mat eroded;
+    cv::Mat morphKernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+    cv::erode(bw, eroded, morphKernel);
 
-    //Blurs the background to reduce unwanted blob detections
-    cv::Mat blured;
-    cv::GaussianBlur(bw,blured,cv::Size(17,17),0);
-
-    //creates a matrix to draw our contours on
+    //
     cv::Mat temp;
-    int numLables = cv::connectedComponents(blured,temp);
-    cv::Mat output = cv::Mat::zeros(blured.size(),CV_8UC3);
+    int numLables = cv::connectedComponents(bw, temp);
+    cv::Mat output = cv::Mat::zeros(bw.size(), CV_8UC3);
     int blob = 0;
-    std::vector<std::vector<cv::Point>> contours;
-    cv::findContours(blured,contours,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_NONE);
 
-    //draws the contours onto the images
-    cv::drawContours(output,contours,-1,cv::Scalar(255,0,0));
-    cv::drawContours(frame_down,contours,-1,cv::Scalar(255,0,0));
+    std::vector<std::vector<cv::Point>> contours;
+
+    cv::findContours(eroded, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+
+    cv::drawContours(frame_down, contours, -1, cv::Scalar(255, 0, 0));
+    cv::drawContours(eroded, contours, -1, cv::Scalar(255, 0, 0));
+
 
     //for loop that finds the moments of the blobs
     for (auto contour : contours) {
-        blob++;
+        
 
         cv::Moments moments = cv::moments(contour);
         double I = moments.m00;
@@ -54,14 +55,20 @@ int main(){
         double cx = m10 / I;
         double cy = m01 / I;
         double m11 = moments.m11;
-        std:: cout << "(" <<cx <<" , "<< cy <<")\n";
+        
 
         double ax = moments.m20;
         double ay = moments.m02;
         
+        
 
         double theta = 0.5 * std::atan2((2*((I*m11) - (m10 * m01))),(((I*ax)- std::pow(m10,2))-((I*ay)-std::pow(m01,2))));
-
+        if (theta == 0){
+            continue;
+        }
+    
+        blob++;
+        std:: cout << "(" <<cx <<" , "<< cy <<")\n";
         std::cout << "Theta: "<< theta*(180/(std::atan(1)*4)) <<"\n";
 
         cv::line(frame_down, cv::Point(cx - 15, cy + 15), cv::Point(cx + 15, cy - 15), cv::Scalar(0,255,255), 2);

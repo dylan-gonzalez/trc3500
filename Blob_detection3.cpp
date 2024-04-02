@@ -5,28 +5,39 @@
 #define _USE_MATH_DEFINES
 
 int main(){
+    
     //Finds the image that will be processed
-    cv::Mat frame = imread("assets/DEMO_components_02.png",cv::IMREAD_COLOR);
+    cv::VideoCapture cap(0);
+    if (!cap.isOpened()){
+        std::cout << "error";
+        return 0;
+    }
     cv::Mat frame_down;
-    cv::resize(frame,frame_down,cv::Size(),0.2,0.2);
-
+    cap >> frame_down;
+    if (frame_down.empty()){
+        std::cout << "frame empty";
+        return 0;
+    }
     //Greyscales the image
     cv::Mat gray;
     cv::cvtColor(frame_down, gray, cv::COLOR_BGR2GRAY);
 
     //Turns the image into a binary black and white photo
     cv::Mat bw;
-    cv::threshold(gray,bw,179,255,cv::THRESH_BINARY_INV);
+    cv::threshold(gray,bw,160,255,cv::THRESH_BINARY_INV);
 
     //Blurs the background to reduce unwanted blob detections
     cv::Mat blured;
-    cv::GaussianBlur(bw,blured,cv::Size(5,5),0);
+    cv::GaussianBlur(bw,blured,cv::Size(9,9),0);
 
     //creates a matrix to draw our contours on
     cv::Mat temp;
     int numLables = cv::connectedComponents(blured,temp);
     cv::Mat output = cv::Mat::zeros(blured.size(),CV_8UC3);
     int blob = 0;
+    int R_count = 0;
+    int L_count = 0;
+    int T_count = 0;
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(blured,contours,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_NONE);
 
@@ -62,8 +73,25 @@ int main(){
         cv::line(frame_down, cv::Point(cx + 50, cy + theta*50), cv::Point(cx - 50, cy - theta * 50), cv::Scalar(255,255,0), 2);
 
         double min = std::numeric_limits<double>::max();
+        if (I > 250 && I < 900){
+            putText(frame_down, std::string(1, 'R'), cv::Point(cx + 5, cy + 5), cv::FONT_HERSHEY_SIMPLEX, 2, cv::Scalar(0, 0, 255), 3);
+            R_count++;
+        }
+        else if (I > 900 && I <1500){
+            putText(frame_down, std::string(1, 'T'), cv::Point(cx + 5, cy + 5), cv::FONT_HERSHEY_SIMPLEX, 2, cv::Scalar(0, 0, 255), 3);
+            T_count++;
+        }
+        else if (I > 1000 && I<10000){
+            putText(frame_down, std::string(1, 'L'), cv::Point(cx + 5, cy + 5), cv::FONT_HERSHEY_SIMPLEX, 2, cv::Scalar(0, 0, 255), 3);
+            L_count++;
+        }
+        
         int best_match = -1;
     }
+
+    std::cout << "R Total: " << R_count<<"\n";
+    std::cout << "L Total: " << L_count<<"\n";
+    std::cout << "T Total: " << T_count<<"\n";
 
     //displays number of blobs
     std::cout << "blobs: "<< blob<<"\n";
@@ -75,4 +103,5 @@ int main(){
     cv::destroyAllWindows();
 
     return 0;
+    
 }
