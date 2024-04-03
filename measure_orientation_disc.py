@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-
 def generate_blob(size, orientation):
     # Create a blank image
     img = np.zeros((size, size), dtype=np.uint8)
@@ -18,33 +17,36 @@ def detect_orientation(image):
     contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     img = image.copy()
 
-    #cv2.drawContours(img, contours, -1, (255,0,0), thickness=2)
-    #print("showing contours")
-    #print(contours)
-    #cv2.imshow('contours', img)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
-    #print('done')
+    cv2.drawContours(img, contours, -1, (255,0,0), thickness=2)
+    print("showing contours")
+    print(contours)
+    cv2.imshow('contours', img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    print('done')
 
     # Iterate over contours to find moments and compute theta
     for contour in contours:
 
         moments = cv2.moments(contour)
         I = moments['m00']
+        if I == 0:
+            print("No moments found")
+            return
         m10 = moments['m10']
         m01 = moments['m01']
         cx = m10 / I
         cy = m01 / I
         m11 = moments['m11']
 
-        print(f"Center: ({cx}, {cy})")
+        #print(f"Center: ({cx}, {cy})")
 
         ax = moments['m20']
         ay = moments['m02']
 
         theta = 0.5 * np.arctan2((2 * ((I * m11) - (m10 * m01))), (((I * ax) - np.power(m10, 2)) - ((I * ay) - np.power(m01, 2))))
 
-        print(f"Theta: {np.degrees(theta)}")
+        #print(f"Theta: {np.degrees(theta)}")
 
         cv2.line(image, (int(cx) - 15, int(cy) + 15), (int(cx) + 15, int(cy) - 15), (0, 255, 255), thickness=2)
         cv2.line(image, (int(cx) + 15, int(cy) + 15), (int(cx) - 15, int(cy) - 15), (0, 255, 255), thickness=2)
@@ -62,46 +64,53 @@ def measure_orientation_discrimination_threshold(num_trials, size):
     correct_responses = 0
 
     # 5deg
-    target_orientation = 5
+    ref_angle = 5
 
     #blob with the target orientation
-    target_blob = generate_blob(size, target_orientation)
+    ref_blob = generate_blob(size, ref_angle)
 
-    current_angle = target_orientation
-    for _ in range(num_trials):
-        # Generate a blob with the target orientation
-        generated_blob = generate_blob(size, current_angle)
-        #cv2.imshow('blob', generated_blob)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
+    output = []
+    for delta in range(0, 180 - ref_angle, 2): #step size of 2
+        print(f"--Delta: {delta}")
+        current_angle = ref_angle + delta
+        #10 trials
+        for i in range(num_trials):
+            # Generate a blob with the target orientation
+            blob = generate_blob(size, current_angle)
+            #cv2.imshow('blob', generated_blob)
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()
 
-        # Your code to process the target_blob and measure the orientation
-        # discrimination accuracy goes here. This could involve using
-        # computer vision techniques like edge detection, contour analysis,
-        # or machine learning models trained to detect orientations.
+            ref_orientation = detect_orientation(ref_blob)
+            blob_orientation = detect_orientation(blob)
 
-        detected_orientation = detect_orientation(generated_blob)
+            print(f"Ref: {ref_orientation}, Blob: {blob_orientation}")
 
-        # For demonstration purposes, let's assume the system correctly
-        # identifies the orientation if it is within a tolerance range of 10 degrees.
-        tolerance = 5
-        #detected_orientation = np.random.randint(target_orientation - tolerance, target_orientation + tolerance + 1)
-        
-        # Check if the detected orientation is within the tolerance range
-        if target_orientation - tolerance <= detected_orientation <= target_orientation + tolerance:
-            correct_responses += 1
+            if blob_orientation == None and ref_orientation == None:
+                continue
 
-        current_angle += 5
+            if ref_orientation == None:
+                continue
 
-    accuracy = correct_responses / num_trials
-    return accuracy
+            if blob_orientation == None:
+                correct_response += 1
+                continue
+
+
+            if abs(ref_orientation - ref_angle) < abs(blob_orientation - ref_angle):
+                correct_responses += 1
+
+        output.append(correct_responses / num_trials)
+
+    return output 
 
 
 
 # Define parameters
-num_trials = 1000  # Number of trials to perform
+num_trials = 10 # Number of trials to perform for each delta
 blob_size = 100  # Size of each blob (width and height in pixels)
 
 # Measure orientation discrimination threshold
-accuracy = measure_orientation_discrimination_threshold(num_trials, blob_size)
-print(f"Orientation discrimination accuracy: {accuracy * 100:.2f}%")
+result = measure_orientation_discrimination_threshold(num_trials, blob_size)
+#print(f"Orientation discrimination accuracy: {accuracy * 100:.2f}%")
+print(result)
