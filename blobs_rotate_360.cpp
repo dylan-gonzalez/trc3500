@@ -5,42 +5,6 @@
 #include <random>
 
 
-
-// Function to calculate similarity index between two contours
-double calculateSimilarityIndex(const std::vector<cv::Point>& contour1, const std::vector<cv::Point>& contour2) {
-    // Compute similarity index between contours
-    double intersectionArea = 0.0;
-    for (const cv::Point& pt1 : contour1) {
-        for (const cv::Point& pt2 : contour2) {
-            if (pt1 == pt2) {
-                intersectionArea++;
-                break;
-            }
-        }
-    }
-    double similarityIndex = intersectionArea / std::min(contour1.size(), contour2.size());
-    return similarityIndex;
-}
-/*
-// Function to perform orientation discrimination
-std::vector<double> performOrientationDiscrimination(const std::vector<cv::Point>& originalContour, int numSteps) {
-    std::vector<double> similarityIndices; // Vector to store similarity indices for each rotation angle
-
-    for (int angle = 0; angle < 360; angle += numSteps) {
-        // Rotate the original contour by 'angle' degrees
-        cv::Mat rotationMatrix = cv::getRotationMatrix2D(cv::Point2f(static_cast<float>(originalContour.cols / 2), static_cast<float>(originalContour.rows / 2)), angle, 1.0);
-        std::vector<cv::Point> rotatedContour;
-        cv::transform(originalContour, rotatedContour, rotationMatrix);
-
-        // Calculate similarity index between original contour and rotated contour
-        double similarityIndex = calculateSimilarityIndex(originalContour, rotatedContour);
-        similarityIndices.push_back(similarityIndex);
-    }
-
-    return similarityIndices;
-}
-*/
-
 int main() {
     // Define random seed to change the pattern
     int seedval = 55;
@@ -112,18 +76,6 @@ int main() {
         cv::imwrite(filename, rotatedResult);
     }
 
-
-    /*
-    // Perform orientation discrimination with 5-degree steps
-    std::vector<double> similarityIndices = performOrientationDiscrimination(originalContour, 5);
-    
-    
-    // Display similarity indices
-    std::cout << "Similarity Indices:" << std::endl;
-    for (int i = 0; i < similarityIndices.size(); ++i) {
-        std::cout << "Angle: " << i * 5 << " degrees, Similarity Index: " << similarityIndices[i] << std::endl;
-    }
-    */
 
     // Show results
     cv::imshow("result", result);
