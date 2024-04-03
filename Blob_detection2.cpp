@@ -6,9 +6,17 @@
 
 int main(){
     //Finds the image that will be processed
-    cv::Mat frame = imread("./assets/DEMO_circle_fish_star_02.jpg",cv::IMREAD_COLOR);
+    cv::VideoCapture cap(0);
+    if (!cap.isOpened()){
+        std::cout << "error";
+        return 0;
+    }
     cv::Mat frame_down;
-    cv::resize(frame,frame_down,cv::Size(),0.5,0.5);
+    cap >> frame_down;
+    if (frame_down.empty()){
+        std::cout << "frame empty";
+        return 0;
+    }
 
     //Greyscales the image
     cv::Mat gray;
@@ -16,13 +24,11 @@ int main(){
 
     //Turns the image into a binary black and white photo
     cv::Mat bw;
-    cv::threshold(gray,bw,140,255,cv::THRESH_BINARY_INV);
-    cv::Mat bw_temp;
-    cv::bitwise_not(bw,bw_temp);
+    cv::threshold(gray,bw,45,255,cv::THRESH_BINARY_INV);
 
     //Blurs the background to reduce unwanted blob detections
     cv::Mat blured;
-    cv::GaussianBlur(bw_temp,blured,cv::Size(5,5),0);
+    cv::GaussianBlur(bw,blured,cv::Size(17,17),0);
 
     //creates a matrix to draw our contours on
     cv::Mat temp;
@@ -70,9 +76,7 @@ int main(){
     //displays number of blobs
     std::cout << "blobs: "<< blob<<"\n";
     //displays the imgs
-    cv::imshow("out", output);
-    cv::imshow("bw", bw_temp);
-    cv::imshow("blurred",blured);
+    cv::imshow("original", frame_down);
     cv::waitKey(0);
     
     //ends program
