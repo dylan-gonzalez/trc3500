@@ -57,6 +57,54 @@ cv::Mat read_im() {
     return gray;
 }
 
+int get_bits(std::vector<std::vector<cv::Point>> contours, cv::Mat image) {
+    
+    std::vector<cv::RotatedRect> minRect( contours.size() );
+
+    // find minAreaRect for each contour (each line)
+    for (size_t i = 0; i < contours.size(); i++)
+    {   
+        // filter unwanted objects (contours with less than 4 points, contours with too small area)
+        //if (contours[i].size() < 4 || contourArea(contours[i]) < someAreaInPixels)
+        //    continue;
+
+        // you can draw contours for debugging
+        // drawContours(binaryImage, contours, i, Scalar(255,0,0), 1, 8, hierarchy, 0, Point());
+
+        minRect[i] = minAreaRect(cv::Mat(contours[i]));
+
+        //std::cout << minRect.size << "\n";
+
+
+
+        // now you can use minRect.size.width to determine width of the bar
+        // minRect contains center point, size and angle
+    }
+
+    /// Draw contours + rotated rects + ellipses
+    cv::Mat drawing = cv::Mat::zeros( image.size(), CV_8UC3 );
+    for( int i = 0; i< contours.size(); i++ )
+    {
+        std::cout << "printing" << i << "\n";
+
+        cv::Scalar color = cv::Scalar( 0, 255, 0);
+        // contour
+        drawContours( drawing, contours, i, color, 1, 8, std::vector<cv::Vec4i>(), 0, cv::Point() );
+        // rotated rectangle
+        cv::Point2f rect_points[4]; minRect[i].points( rect_points );
+        for( int j = 0; j < 4; j++ )
+            line( drawing, rect_points[j], rect_points[(j+1)%4], color, 1, 8 );
+    }
+
+    cv::imshow("boxes", drawing );
+    cv::waitKey(0);
+    cv::destroyAllWindows();
+
+    return 1;
+
+}
+
+
 cv::Mat draw_contours(cv::Mat gray) {
 
     //Turns the image into a binary black and white photo
@@ -84,9 +132,12 @@ cv::Mat draw_contours(cv::Mat gray) {
 
     //draws the contours onto the images
     cv::drawContours(output, contours, -1, cv::Scalar(255, 0, 0));
+
+    get_bits(contours, output);
     return output;
 
 }
+
 
 
 int main() {
