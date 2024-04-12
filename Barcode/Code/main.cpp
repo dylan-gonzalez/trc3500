@@ -14,22 +14,10 @@ cv::Mat videocap(int fps) {
         return frame;
     }
 
-<<<<<<< HEAD
+
     while (cap.read(frame)){
-        
-        
 
         cv::imshow("webcam",frame);
-=======
-    while (cap.read(frame)) {
-
-        cv::Mat gray;
-
-        cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
-
-        cv::imshow("webcam", gray);
->>>>>>> 7ef44b347ee24d9dc600f361f2fe35325a17e5e0
-
 
         if (cv::waitKey(1000 / fps) >= 0) {
             cv::destroyAllWindows();
@@ -97,6 +85,7 @@ cv::Mat read_im() {
     return gray;
 }
 
+//Do we need get bits
 int get_bits(std::vector<std::vector<cv::Point>> contours, cv::Mat image) {
     
     std::vector<cv::RotatedRect> minRect( contours.size() );
@@ -144,7 +133,7 @@ int get_bits(std::vector<std::vector<cv::Point>> contours, cv::Mat image) {
 
 }
 
-
+//Do we need draw contours
 cv::Mat draw_contours(cv::Mat gray) {
 
     //Turns the image into a binary black and white photo
@@ -182,8 +171,6 @@ cv::Mat draw_contours(cv::Mat gray) {
 
 int main() {
     cv::Mat capture;
-
-<<<<<<< HEAD
     capture = videocap(20);
 
     cv::Mat detect;
@@ -191,23 +178,7 @@ int main() {
     detect = decoder(capture);
 
     cv::imshow("capture",detect);
-=======
-    //capture image with camera - uncomment for demo
-    //capture = videocap(20);
-    
-    //OR read image - for testing 
-    capture = read_im();
 
-    //show image
-    cv::imshow("capture", capture);
-
-    //draw contours
-    cv::Mat contours;
-    contours = draw_contours(capture);
-    cv::imshow("contours", contours);
-    
-
->>>>>>> 7ef44b347ee24d9dc600f361f2fe35325a17e5e0
     cv::waitKey(0);
     cv::destroyAllWindows();
     return 0;
