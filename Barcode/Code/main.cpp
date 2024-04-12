@@ -46,7 +46,7 @@ cv::Mat decoder(cv::Mat capture){
 cv::Mat read_im() {
 
     //read image
-    cv::Mat im = imread("IMG_20240227_0003.jpg", cv::IMREAD_COLOR);
+    cv::Mat im = imread("../resources/IMG_20240227_0003.jpg", cv::IMREAD_COLOR);
     cv::Mat im_resized;
     cv::resize(im, im_resized, cv::Size(), 2, 2);
 
