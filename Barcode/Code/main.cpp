@@ -43,14 +43,33 @@ cv::Mat decoder(cv::Mat capture){
 
 }*/
 
+cv::Mat read_im() {
+
+    //read image
+    cv::Mat im = imread("IMG_20240227_0003.jpg", cv::IMREAD_COLOR);
+    cv::Mat im_resized;
+    cv::resize(im, im_resized, cv::Size(), 2, 2);
+
+    //grayscale image
+    cv::Mat gray;
+    cv::cvtColor(im_resized, gray, cv::COLOR_BGR2GRAY);
+
+    return gray;
+}
 
 cv::Mat draw_contours(cv::Mat gray) {
 
-
     //Turns the image into a binary black and white photo
     cv::Mat bw;
+    
+    /*
+    thresholded values for camera pic - uncomment and adjust for demo
     cv::threshold(gray, bw, 95, 255, cv::THRESH_BINARY_INV);
+    */
 
+    //thresholded value for read_im capture
+    cv::threshold(gray, bw, 30, 255, cv::THRESH_BINARY_INV);
+    
     //Blurs the background to reduce unwanted blob detections
     cv::Mat blured;
     cv::GaussianBlur(bw, blured, cv::Size(5, 5), 0);
@@ -73,13 +92,21 @@ cv::Mat draw_contours(cv::Mat gray) {
 int main() {
     cv::Mat capture;
 
-    capture = videocap(20);
+    //capture image with camera - uncomment for demo
+    //capture = videocap(20);
+    
+    //OR read image - for testing 
+    capture = read_im();
+
+    //show image
     cv::imshow("capture", capture);
 
+    //draw contours
     cv::Mat contours;
     contours = draw_contours(capture);
-
     cv::imshow("contours", contours);
+    
+
     cv::waitKey(0);
     cv::destroyAllWindows();
     return 0;
