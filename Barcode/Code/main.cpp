@@ -66,8 +66,10 @@ cv::Mat decoder(cv::Mat capture){
             std::ostringstream buf;
             buf << "[" << decode_type[idx] << "]"<< decode_info[idx];
             cv::putText(capture,buf.str(),contour[1],cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(0,0,255),2);
+            std::cout << "Barcode detected: " << decode_type[idx] << " - "<< decode_info[idx];
         }
     }
+    
     return capture;
 }
 
