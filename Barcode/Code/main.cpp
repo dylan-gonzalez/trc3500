@@ -5,6 +5,11 @@
 #include <math.h>
 #define _USE_MATH_DEFINES
 
+/*
+To achieve the desired result, the opencv barcode library has been used
+within this code
+*/
+
 cv::Mat videocap(int fps) {
     cv::VideoCapture cap(0);
     cv::Mat frame;
