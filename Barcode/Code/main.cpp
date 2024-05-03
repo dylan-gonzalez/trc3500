@@ -1,8 +1,14 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/objdetect/barcode.hpp>
 #include <iostream>
 #include <math.h>
 #define _USE_MATH_DEFINES
+
+/*
+To achieve the desired result, the opencv barcode library has been used
+within this code
+*/
 
 cv::Mat videocap(int fps) {
     cv::VideoCapture cap(0);
@@ -13,35 +19,64 @@ cv::Mat videocap(int fps) {
         return frame;
     }
 
-    while (cap.read(frame)) {
 
-        cv::Mat gray;
+    while (cap.read(frame)){
 
-        cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
-
-        cv::imshow("webcam", gray);
-
+        cv::imshow("webcam",frame);
 
         if (cv::waitKey(1000 / fps) >= 0) {
             cv::destroyAllWindows();
             cap.release();
-            return gray;
+            return frame;
         }
     }
 
 
     return frame;
 }
-/*
+
 cv::Mat decoder(cv::Mat capture){
     if (capture.empty()){
         std::cout << "No capture given";
         return capture;
     }
+    cv::Mat gray;
 
-    cv::Mat corners;
+    cv::cvtColor(capture,gray,cv::COLOR_BGR2GRAY);
 
-}*/
+    std::vector<cv::Point> corners;
+    std::vector<std::string> decode_info;
+    std::vector<std::string> decode_type;
+
+    cv::Ptr ba = cv::makePtr<cv::barcode::BarcodeDetector>();
+   
+    ba -> detectAndDecodeWithType(gray,decode_info,decode_type,corners);
+
+    for (size_t i = 0; i < corners.size(); i += 4){
+        const size_t idx = i/4;
+        const bool isdec = idx < decode_info.size()
+        && idx < decode_type.size()
+        && !decode_type[idx].empty();
+        const cv::Scalar lineColor = isdec ? cv::Scalar(0,255,0) : cv::Scalar(255,0,0);
+        
+        std::vector<cv::Point> contour(corners.begin()+i,corners.begin() + i + 4);
+        const std::vector<std::vector<cv::Point>> contours{contour};
+        cv::drawContours(capture, contours,0,lineColor,1);
+
+        for (size_t j = 0; j < 4; j++){
+            cv::circle(capture,contour[j], 2, cv::Scalar(0,0,0),-1);
+        }
+
+        if (isdec){
+            std::ostringstream buf;
+            buf << "[" << decode_type[idx] << "]"<< decode_info[idx];
+            cv::putText(capture,buf.str(),contour[1],cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(0,0,255),2);
+            std::cout << "Barcode detected: " << decode_type[idx] << " - "<< decode_info[idx];
+        }
+    }
+    
+    return capture;
+}
 
 cv::Mat read_im() {
 
@@ -57,6 +92,7 @@ cv::Mat read_im() {
     return gray;
 }
 
+//Do we need get bits
 int get_bits(std::vector<std::vector<cv::Point>> contours, cv::Mat image) {
     
     std::vector<cv::RotatedRect> minRect( contours.size() );
@@ -104,7 +140,7 @@ int get_bits(std::vector<std::vector<cv::Point>> contours, cv::Mat image) {
 
 }
 
-
+//Do we need draw contours
 cv::Mat draw_contours(cv::Mat gray) {
 
     //Turns the image into a binary black and white photo
@@ -142,21 +178,13 @@ cv::Mat draw_contours(cv::Mat gray) {
 
 int main() {
     cv::Mat capture;
+    capture = videocap(20);
 
-    //capture image with camera - uncomment for demo
-    //capture = videocap(20);
-    
-    //OR read image - for testing 
-    capture = read_im();
+    cv::Mat detect;
 
-    //show image
-    cv::imshow("capture", capture);
+    detect = decoder(capture);
 
-    //draw contours
-    cv::Mat contours;
-    contours = draw_contours(capture);
-    cv::imshow("contours", contours);
-    
+    cv::imshow("capture",detect);
 
     cv::waitKey(0);
     cv::destroyAllWindows();
